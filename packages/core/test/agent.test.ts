@@ -23,7 +23,7 @@ vi.mock("../src/providers/index.js", async (importOriginal) => {
   };
 });
 
-import { modelAbortSignal, resolveLlmTimeout, resolveMaxSteps, runMutation, runQuery } from "../src/agent/agent.js";
+import { cleanModelText, modelAbortSignal, resolveLlmTimeout, resolveMaxSteps, runMutation, runQuery } from "../src/agent/agent.js";
 import { KnowledgeBase } from "../src/okf/index.js";
 
 let root: string;
@@ -226,5 +226,13 @@ describe("step limit (#37)", () => {
     expect(result.stepLimited).toBe(true);
     expect(result.answer).toContain("all 12 steps");
     expect((await savedTrace()).outcome).toBe("step-limit");
+  });
+});
+
+describe("cleanModelText", () => {
+  it("strips matched <think>...</think> blocks and orphaned leading </think> prefixes", () => {
+    expect(cleanModelText("<think>internal reasoning</think>\nFinal answer.")).toBe("Final answer.");
+    expect(cleanModelText("OK.</think>OK.")).toBe("OK.");
+    expect(cleanModelText("<think></think>  Clean text ")).toBe("Clean text");
   });
 });

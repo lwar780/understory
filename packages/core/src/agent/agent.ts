@@ -56,6 +56,7 @@ export function cleanModelText(text: string): string {
   return text
     .replace(/<think>[\s\S]*?<\/think>\s*/gi, "")
     .replace(/^[\s\S]*?<\/think>\s*/i, "")
+    .replace(/<think>[\s\S]*$/i, "")
     .trim();
 }
 

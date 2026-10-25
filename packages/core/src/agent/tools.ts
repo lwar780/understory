@@ -82,7 +82,8 @@ export function buildReadTools(kb: KnowledgeBase, trace?: TraceRecorder) {
       execute: async ({ path }) => {
         const c = await kb.readConcept(path);
         trace?.record("read_concept", c.path, [c.path]);
-        const maxChars = Number(process.env.AGENT_MAX_READ_CHARS) || 16_000;
+        const rawLimit = Number(process.env.AGENT_MAX_READ_CHARS);
+        const maxChars = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.floor(rawLimit) : 16_000;
         const body =
           c.body.length > maxChars
             ? `${c.body.slice(0, maxChars)}\n\n...[truncated ${c.body.length - maxChars} chars for context safety]`

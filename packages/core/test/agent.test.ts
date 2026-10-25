@@ -234,5 +234,6 @@ describe("cleanModelText", () => {
     expect(cleanModelText("<think>internal reasoning</think>\nFinal answer.")).toBe("Final answer.");
     expect(cleanModelText("OK.</think>OK.")).toBe("OK.");
     expect(cleanModelText("<think></think>  Clean text ")).toBe("Clean text");
+    expect(cleanModelText("Here is answer <think>unfinished reasoning")).toBe("Here is answer");
   });
 });

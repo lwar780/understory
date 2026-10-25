@@ -166,7 +166,8 @@ export async function searchBundle(
     const docByPath = new Map(docs.map((d) => [d.path, d]));
     const topSeeds = [...hitByPath.values()]
       .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
+      .slice(0, 3)
+      .map((hit) => ({ path: hit.path, score: hit.score }));
     for (const seed of topSeeds) {
       const seedDoc = docByPath.get(seed.path);
       if (!seedDoc) continue;

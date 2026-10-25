@@ -70,15 +70,14 @@ export function isRetryableError(err: unknown, retry429?: boolean): boolean {
   if (typeof err === "number") return isRetryableStatusCode(err, retry429);
   if (isAbortError(err)) return false;
 
-  // Context overflow arrives as HTTP 400 from llama.cpp, vLLM and OpenAI. It must be
-  // checked before the status gate, which treats every 4xx as non-retryable. A fallback
-  // with a larger context can serve it, so it is the one 4xx that should fail over.
-  if (isContextOverflowError(err)) return true;
-
-  // Check status code next: it is more specific than the generic isRetryable flag,
-  // so {statusCode: 429, isRetryable: true} still gates on the retry429 opt-in.
   const statusCode = getStatusCode(err);
-  if (statusCode != null) return isRetryableStatusCode(statusCode, retry429);
+  if (statusCode != null) {
+    if (statusCode === 400 && isContextOverflowError(err)) return true;
+    return isRetryableStatusCode(statusCode, retry429);
+  }
+
+  // Without an HTTP status, check for context overflow in client/local errors.
+  if (isContextOverflowError(err)) return true;
 
   // AI SDK wraps transport failures in RetryError with isRetryable: true.
   if (getIsRetryable(err)) return true;
